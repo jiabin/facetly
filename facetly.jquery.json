@@ -1,0 +1,26 @@
+{
+  "name": "facetly",
+  "title": "Facetly",
+  "description": "Elasticsearch user interface",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jiabin/facetly",
+  "author": {
+    "name": "Eymen Gunay",
+    "email": "eymen@egunay.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jiabin/facetly.git"
+  },
+  "bugs": "https://github.com/jiabin/facetly/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jiabin/facetly/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "1.8.2"
+  },
+  "keywords": []
+}

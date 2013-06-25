@@ -1,0 +1,83 @@
+/* Facetly v0.1.0  */
+
+/* -------------------------------------------------- 
+   Table of Contents
+-----------------------------------------------------
+:: Helpers
+:: Sidebar
+*/
+
+
+/* -----------------------------------------
+   Helpers
+----------------------------------------- */
+
+.reset-spacing() {
+    margin: 0;
+    padding: 0;
+}
+
+.border-radius (@radius) {
+  border-radius: @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+}
+
+.facetly {
+  width: 100%;
+
+  /* -----------------------------------------
+     Sidebar
+  ----------------------------------------- */
+  @sidebarWidth: 400px;
+  .sidebar {
+    float: left;
+    width: 40%;
+    max-width: @sidebarWidth;
+    height: 100%;
+    overflow: hidden;
+    margin-top: -1px;
+    margin-right: 5px;
+    ul {
+      .reset-spacing();
+      li {
+        .reset-spacing();
+        .header {
+          .border-radius(0);
+        }
+        .content {
+          .add-on {
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  /* -----------------------------------------
+     Results
+  ----------------------------------------- */
+  .results {
+    overflow-x: auto;
+    overflow-y: auto; 
+    height: 100%;
+    table {
+      overflow-x: scroll;
+      width: 100%;
+      .border-radius(0);
+      border-collapse: collapse;
+      tr,
+      td,
+      th {
+        .border-radius(0);
+      }
+    }
+  }
+
+  .ui-accordion {
+    .ui-accordion-content {
+      padding: 5px;
+      background: #efefef;
+    }
+  } 
+}

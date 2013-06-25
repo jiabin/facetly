@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" type="text/css" href="./demo.css" />
+    <link rel="stylesheet" type="text/css" href="../css/facetly.css" />
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" />
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <title>Facetly</title>
+</head>
+<body>
+    <div class="container">
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="https://github.com/eymengunay/facetly" target="_blank">Source</a></li>
+                <li><a href="https://github.com/eymengunay/facetly/issues" target="_blank">Issues</a></li>
+            </ul>
+            <h3 class="muted">Facetly <small>by Jiabin</small></h3>
+        </div>
+        <hr />
+        <div id="facetly" class="facetly"></div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="../vendor/handlebars.js"></script>
+    <script src="../src/facetly.js"></script>
+    <script>
+    Facetly.init({
+        selector: '#facetly',
+        elasticsearch: 'http://localhost:9200',
+        index: 'teatrolibero',
+        type: 'user',
+        onSerialize: function(obj, str) {
+            // console.debug(str);
+        },
+        facets: {
+            email: {
+                terms: {
+                    field: "email",
+                    size: 10
+                }
+            },
+            acceptsNewsletter: {
+                terms: {
+                    field: "acceptsNewsletter"
+                }
+            },
+            providerName: {
+                terms: {
+                    field: "providerName"
+                }
+            },
+            sales: {
+                terms: {
+                    field: "orders.items.sellable.name",
+                },
+                nested: "orders.items.sellable"  
+            },
+            group: {
+                terms: {
+                    field: "groups.name",
+                },
+                nested: "groups"  
+            },
+            city: {
+                terms: {
+                    field: "addresses.city"
+                },
+                nested: "addresses"
+            },
+            country: {
+                terms: {
+                    field: "addresses.country"
+                },
+                nested: "addresses"
+            }
+            /*locale: {
+                terms: {
+                    field: "locale"
+                }
+            },
+            groups_name: {
+                terms: {
+                    field: "groups.name"
+                },
+                nested: "groups"
+            },
+            orders_items_name: {
+                terms: {
+                    script_field: "doc['orders.items.sellable.name'].value",
+                },
+                nested: "orders.items.sellable"
+            }*/
+        }
+    });
+    </script>
+</body>
+</html>

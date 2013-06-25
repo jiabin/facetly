@@ -1,0 +1,5 @@
+/*! Facetly - v0.1.0 - 2013-06-25
+* https://github.com/jiabin/facetly
+* Copyright (c) 2013 Eymen Gunay; Licensed MIT */
+
+.facetly{width:100%}.facetly .sidebar{float:left;width:40%;max-width:400px;height:100%;overflow:hidden;margin-top:-1px;margin-right:5px}.facetly .sidebar ul{margin:0;padding:0}.facetly .sidebar ul li{margin:0;padding:0}.facetly .sidebar ul li .header{border-radius:0;-moz-border-radius:0;-webkit-border-radius:0}.facetly .sidebar ul li .content .add-on{cursor:pointer}.facetly .results{overflow-x:auto;overflow-y:auto;height:100%}.facetly .results table{overflow-x:scroll;width:100%;border-radius:0;-moz-border-radius:0;-webkit-border-radius:0;border-collapse:collapse}.facetly .results table tr,.facetly .results table td,.facetly .results table th{border-radius:0;-moz-border-radius:0;-webkit-border-radius:0}.facetly .ui-accordion .ui-accordion-content{padding:5px;background:#efefef}

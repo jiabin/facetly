@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
 
     <link rel="stylesheet" type="text/css" href="./demo.css" />
-    <link rel="stylesheet" type="text/css" href="../dist/facetly.min.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/facetly.css" />
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" />
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css">
+    <link rel="stylesheet" type="text/css" href="../libs/bootstrap-slider/css/slider.css" />
     <title>Facetly</title>
 </head>
 <body>
@@ -26,8 +27,10 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="../libs/bootstrap-slider/js/bootstrap-slider.js"></script>
+    <script src="../libs/moment.min.js"></script>
     <script src="../libs/handlebars.min.js"></script>
-    <script src="../src/facetly.js"></script>
+    <script src="../dist/facetly.js"></script>
     <script>
     Facetly.init({
         selector: '#facetly',
@@ -75,24 +78,18 @@
                     field: "addresses.country"
                 },
                 nested: "addresses"
-            }
-            /*locale: {
+            },
+            locale: {
                 terms: {
                     field: "locale"
                 }
             },
-            groups_name: {
-                terms: {
-                    field: "groups.name"
-                },
-                nested: "groups"
-            },
-            orders_items_name: {
-                terms: {
-                    script_field: "doc['orders.items.sellable.name'].value",
-                },
-                nested: "orders.items.sellable"
-            }*/
+            createdAt: {
+                date_histogram : {
+                    field : "createdAt",
+                    interval : "day"
+                }
+            }
         }
     });
     </script>

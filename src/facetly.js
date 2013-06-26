@@ -110,7 +110,8 @@ var Facetly = Facetly || (function($) {
                 }
             });
 
-        }
+        },
+        clone: []
     };
     var _log = Utils.log;
 
@@ -132,7 +133,8 @@ var Facetly = Facetly || (function($) {
         },
         get: function(url, data, returnFunc) {
             Ajax.send('GET', url, data, returnFunc);
-        }
+        },
+        facets: false
     };
 
     /* -----------------------------------------
@@ -140,6 +142,54 @@ var Facetly = Facetly || (function($) {
     ----------------------------------------- */
     Events = {
         endpoints: {
+            serializeDateHistogram: function(e, arr) {
+                var name = $(this).attr('data-name');
+                Query.holder[name] = {};
+
+                var value = $(this).val();
+                if (!value) {
+                    return;
+                }
+                var values = value.split(',');
+                if (values.length != 2) {
+                    return;
+                }
+
+                var entries = Ajax.facets[name].entries;
+                if (entries[values[0]] == undefined || entries[values[0]].time == undefined) {
+                    values[0] = entries[0].time;
+                } else {
+                    values[0] = entries[values[0]].time;
+                }
+                if (entries[values[1]] == undefined || entries[values[1]].time == undefined) {
+                    values[1] = entries[entries.length - 1].time;
+                } else {
+                    values[1] = entries[values[1]].time;
+                }
+                
+                var query = $("#facetly-form ul#facet-"+name+" :input").serializeObject();
+
+                var i = 0;
+                for (q in query[name]) {
+
+                    var operator = query[name][q].operator;
+
+                    if (operator != '' && values[0] != '' && values[1] != '') {
+
+                        if (Query.holder[name][operator] == undefined) Query.holder[name][operator] = [];
+
+                        var object = {};
+                        object['range'] = {};
+                        object['range'][name] = {
+                            from: parseInt(values[0]),
+                            to: parseInt(values[1])
+                        }
+                        Query.holder[name][operator].push(object);
+                        i++;
+                    }
+                }
+                App.loadResults();
+            },
             serializeTerms: function(e) {
                 var name = $(this).attr('data-name');
                 var query = $("#facetly-form ul#facet-"+name+" :input").serializeObject();
@@ -197,10 +247,41 @@ var Facetly = Facetly || (function($) {
             },
             clone: function(e) {
                 var li = $(this).closest('li');
-                var clone = $(li).clone();
                 var name = $(this).attr('data-name');
-                // Remove bound information
-                clone.find('*').removeAttr('data-bound');
+                var cloneables = $("li[data-clonable='facetly-"+name+"']");
+                var firstLi = cloneables.first();
+                var firstLiHTML = firstLi[0].outerHTML;
+
+                if (Utils.clone[name] == undefined) Utils.clone[name] = cloneables.length;
+
+                Utils.clone[name] = Utils.clone[name] + 1;
+
+                var index = eval("(" + decodeURIComponent($(this).attr('data-index')) + ")");
+                for (i in index) {
+                    var pattern = new RegExp(RegExp.quote(index[i].orig), 'g');
+                    firstLiHTML = firstLiHTML.replace(pattern, index[i].format.replace("{#}", Utils.clone[name]));
+                }
+                // Remove bound
+                var pattern = new RegExp(RegExp.quote('data-bound="true"'), 'g');
+                firstLiHTML = firstLiHTML.replace(pattern, '');
+
+                $(firstLi).after(firstLiHTML);
+                // Rebind events
+                Events.bindEvents();
+                return; 
+
+                
+
+                var index = eval("(" + $(this).attr('data-index') + ")");
+                for (i in index) {
+                    var pattern = new RegExp(index[i].orig);
+                    var html = clone.html();
+                    html.replace(pattern, index[i].format.replace("{#}", inc));
+                    clone.html(html);
+                }
+
+                console.debug(clone.html());
+
                 // Change index number
                 var length = Utils.cache.window.tmp[name];
 
@@ -245,6 +326,10 @@ var Facetly = Facetly || (function($) {
                 }
             }
             var query = inc == 0 ? Query.matchAllQuery() : query;
+    
+            // Set current query            
+            Query.currentQuery = query;
+
             var object = {query: query, size: Utils.settings.perPage};
             var string = Query.create(query);
             if (Utils.settings.onSerialize) Utils.settings.onSerialize(object, string);
@@ -289,11 +374,16 @@ var Facetly = Facetly || (function($) {
             _log('Compiling templates');
             Templates.types.terms = Handlebars.compile(Templates.types.terms);
             Templates.types.nested = Handlebars.compile(Templates.types.nested);
+            Templates.types.date_histogram = Handlebars.compile(Templates.types.date_histogram);
             // Random helper
             Handlebars.registerHelper('random', function() {
                 var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
                 var uniqid = randLetter + Date.now();
                 return uniqid;
+            });
+            // Increment helper
+            Handlebars.registerHelper('unique_inc', function(bool) {
+                return val + 1;
             });
             // Increment helper
             Handlebars.registerHelper('inc', function(val) {
@@ -335,7 +425,7 @@ var Facetly = Facetly || (function($) {
         },
         types: {
             nested: '<ul id="facet-{{name}}"> \
-                <li class="custom"> \
+                <li class="custom" data-clonable="facetly-{{name}}"> \
                     <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeNested" data-method="change"> \
                         <option value=""></option> \
                         <option value="must">Must</option> \
@@ -344,12 +434,12 @@ var Facetly = Facetly || (function($) {
                     </select> \
                     <div class="input-append"> \
                         <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeNested" data-method="keyup"> \
-                        <a href="javascript:void()" class="add-on" data-event="clone" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
+                        <a href="javascript:void()" class="add-on" data-event="clone"  data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
                         <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
                     </div> \
                 </li> \
                 {{#each facet.terms}} \
-                    <li> \
+                    <li data-clonable="facetly-{{../name}}"> \
                         <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeNested" data-method="change"> \
                             <option value=""></option> \
                             <option value="must">Must</option> \
@@ -362,7 +452,7 @@ var Facetly = Facetly || (function($) {
                 {{/each}} \
             </ul>',
             terms: '<ul id="facet-{{name}}"> \
-                <li class="custom"> \
+                <li class="custom" data-clonable="facetly-{{name}}"> \
                     <div class="form-inline"> \
                         <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeTerms" data-method="change"> \
                             <option value=""></option> \
@@ -372,13 +462,13 @@ var Facetly = Facetly || (function($) {
                         </select> \
                         <div class="input-append"> \
                             <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeTerms" data-method="keyup"> \
-                            <a href="javascript:void()" class="add-on" data-event="clone" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
+                            <a href="javascript:void()" class="add-on" data-event="clone" data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
                             <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
                         </div> \
                     </div> \
                 </li> \
                 {{#each facet.terms}} \
-                    <li> \
+                    <li data-clonable="facetly-{{../name}}"> \
                         <div class="form-inline"> \
                             <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeTerms" data-method="change"> \
                                 <option value=""></option> \
@@ -391,7 +481,39 @@ var Facetly = Facetly || (function($) {
                         </div> \
                     </li> \
                 {{/each}} \
-            </ul>'
+            </ul>',
+            date_histogram: '<ul id="facet-{{name}}"> \
+                <li class="custom" data-clonable="facetly-{{name}}"> \
+                    <div id="facetly-slider-graph-{{name}}-0"></div> \
+                    <div class="form-inline"> \
+                        <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeDateHistogram" data-method="change"> \
+                            <option value=""></option> \
+                            <option value="must">Must</option> \
+                            <option value="should">Should</option> \
+                            <option value="must_not">Must Not</option> \
+                        </select> \
+                        <div class="slide-wrapper"> \
+                            <input type="text" class="input-medium" name="{{name}}[0][value]" data-name="{{name}}" id="facetly-slider-{{name}}-0" value="" data-slider-min="0" data-slider-max="{{facet.entries.length}}" data-slider-step="1" data-slider-value="[0, {{facet.entries.length}}]" data-slider-selection="after" data-slider-tooltip="hide" data-event="serializeDateHistogram" method="change"> \
+                        </div> \
+                        <!-- <div class="btn-group"> \
+                            <a href="javascript:void()" class="btn btn-mini" data-src="facetly-clonable-{{name}}" data-index="alert(\'TODO\')" data-event="clone" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
+                            <a href="javascript:void()" class="btn btn-mini" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
+                        </div> --> \
+                    </div> \
+                    <script> \
+                    var values = new Array(); \
+                    {{#each facet.entries}} \
+                    values.push({ \
+                        time: {{this.time}}, \
+                        count: {{this.count}} \
+                    }); \
+                    {{/each}} \
+                    $("#facetly-slider-{{name}}-0").slider().on("slideStop", function(ev){ \
+                        $("#facetly-slider-{{name}}-0").trigger("click", [{}]); \
+                    }); \
+                    </script> \
+                </li> \
+            </ul>',
         },
         results: '<div class="box-scrollable"> \
             <table class="table table-striped table-bordered"> \
@@ -420,8 +542,15 @@ var Facetly = Facetly || (function($) {
                     <li> \
                         <div class="header"> \
                             {{@key}} \
+                            {{#if this.total}} \
                             <small>Total: {{this.total}}</small> \
+                            {{/if}} \
+                            {{#if this.entries}} \
+                            <small>Total: {{this.entries.length}}</small> \
+                            {{/if}} \
+                            {{#if this.other}} \
                             <small>Other: {{this.other}}</small> \
+                            {{/if}} \
                         </div> \
                         <div class="content"> \
                             {{type this @key}} \
@@ -474,6 +603,7 @@ var Facetly = Facetly || (function($) {
             return query;
         },
         holder: {},
+        currentQuery: {}
     };
 
     /* -----------------------------------------
@@ -503,6 +633,7 @@ var Facetly = Facetly || (function($) {
             _log('Getting Facets');
             Ajax.call(Utils.elastic_search_url(), Query.create({facets: Utils.settings.facets, query: Query.matchAllQuery}), function(data) {
                 UI.sidebar.html(Templates.facets({facets: data.facets }));
+                Ajax.facets = data.facets;
                 _log('Facets Loaded');
                 if (callback) callback();
             });
@@ -526,12 +657,18 @@ var Facetly = Facetly || (function($) {
             App.init(settings);
         },
         loadFacets: App.loadFacets,
-        templates: App.Templates
+        templates: App.Templates,
+        currentQuery: Query.currentQuery
     };
 
     return Public;
 
 })(window.jQuery);
+
+// RegExp quotes
+RegExp.quote = function(str) {
+    return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+};
 
 // Serialize Object
 // https://github.com/macek/jquery-serialize-object

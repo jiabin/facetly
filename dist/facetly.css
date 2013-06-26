@@ -8,6 +8,8 @@
 -----------------------------------------------------
 :: Helpers
 :: Sidebar
+:: Results
+:: jQueryUI overrides
 */
 /* -----------------------------------------
    Helpers
@@ -20,6 +22,14 @@
 
   /* -----------------------------------------
      Results
+  ----------------------------------------- */
+
+  /* -----------------------------------------
+     jQueryUI overrides
+  ----------------------------------------- */
+
+  /* -----------------------------------------
+     Bootstrap Slider overrides
   ----------------------------------------- */
 
 }
@@ -39,6 +49,24 @@
 }
 .facetly .sidebar ul li .content .add-on {
   cursor: pointer;
+}
+.facetly .sidebar ul li .content .slide-wrapper {
+  display: inline-block;
+}
+.facetly .sidebar ul li .content .rickshaw_graph {
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.facetly .sidebar ul li .content .rickshaw_graph #y_axis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+}
+.facetly .sidebar ul li .content .rickshaw_graph #x_axis {
+  position: relative;
+  left: 40px;
+  height: 40px;
 }
 .facetly .results .box-scrollable {
   overflow-x: scroll;
@@ -60,4 +88,8 @@
 .facetly .ui-accordion .ui-accordion-content {
   padding: 5px;
   background: #efefef;
+}
+.facetly .slider {
+  margin-right: 10px;
+  margin-left: 10px;
 }

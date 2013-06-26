@@ -5,6 +5,8 @@
 -----------------------------------------------------
 :: Helpers
 :: Sidebar
+:: Results
+:: jQueryUI overrides
 */
 
 
@@ -43,6 +45,24 @@
           .add-on {
             cursor: pointer;
           }
+          .slide-wrapper {
+            display: inline-block;
+          }
+          .rickshaw_graph {
+            overflow: hidden;
+            margin-bottom: 20px;
+            #y_axis {
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              width: 40px;
+            }
+            #x_axis {
+              position: relative;
+              left: 40px;
+              height: 40px;
+            }
+          }
         }
       }
     }
@@ -67,10 +87,21 @@
     }
   }
 
+  /* -----------------------------------------
+     jQueryUI overrides
+  ----------------------------------------- */
   .ui-accordion {
     .ui-accordion-content {
       padding: 5px;
       background: #efefef;
     }
   } 
+
+  /* -----------------------------------------
+     Bootstrap Slider overrides
+  ----------------------------------------- */
+  .slider {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
 }

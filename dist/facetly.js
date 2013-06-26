@@ -429,28 +429,32 @@ var Facetly = Facetly || (function($) {
         types: {
             nested: '<ul id="facet-{{name}}"> \
                 <li class="custom" data-clonable="facetly-{{name}}"> \
-                    <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeNested" data-method="change"> \
-                        <option value=""></option> \
-                        <option value="must">Must</option> \
-                        <option value="should">Should</option> \
-                        <option value="must_not">Must Not</option> \
-                    </select> \
-                    <div class="input-append"> \
-                        <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeNested" data-method="keyup"> \
-                        <a href="javascript:void()" class="add-on" data-event="clone"  data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                        <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
-                    </div> \
-                </li> \
-                {{#each facet.terms}} \
-                    <li data-clonable="facetly-{{../name}}"> \
-                        <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeNested" data-method="change"> \
+                    <div class="form-inline"> \
+                        <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeNested" data-method="change"> \
                             <option value=""></option> \
                             <option value="must">Must</option> \
                             <option value="should">Should</option> \
                             <option value="must_not">Must Not</option> \
                         </select> \
-                        <input class="input-medium" type="text" value="{{this.term}}" name="{{../name}}[{{inc @index}}][value]" readonly="readonly" data-event="serializeNested" data-method="keyup"> \
-                        <small>({{this.count}})</small> \
+                        <div class="input-append"> \
+                            <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeNested" data-method="keyup"> \
+                            <a href="javascript:void()" class="add-on" data-event="clone"  data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
+                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
+                        </div> \
+                    </div> \
+                </li> \
+                {{#each facet.terms}} \
+                    <li data-clonable="facetly-{{../name}}"> \
+                        <div class="form-inline"> \
+                            <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeNested" data-method="change"> \
+                                <option value=""></option> \
+                                <option value="must">Must</option> \
+                                <option value="should">Should</option> \
+                                <option value="must_not">Must Not</option> \
+                            </select> \
+                            <input class="input-medium" type="text" value="{{this.term}}" name="{{../name}}[{{inc @index}}][value]" readonly="readonly" data-event="serializeNested" data-method="keyup"> \
+                            <small>({{this.count}})</small> \
+                        </div> \
                     </li> \
                 {{/each}} \
             </ul>',

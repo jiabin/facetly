@@ -1,4 +1,7 @@
-/* Facetly v0.1.0  */
+/*! Facetly - v0.1.0 - 2013-06-26
+* https://github.com/jiabin/facetly
+* Copyright (c) 2013 Eymen Gunay; Licensed MIT */
+
 var Facetly = Facetly || (function($) {
 
     var Utils     = {}, // Toolbox

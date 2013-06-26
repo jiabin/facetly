@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 
     <link rel="stylesheet" type="text/css" href="./demo.css" />
-    <link rel="stylesheet" type="text/css" href="../css/facetly.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/facetly.min.css" />
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" />
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
     <title>Facetly</title>
@@ -26,14 +26,12 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script src="../vendor/handlebars.js"></script>
+    <script src="../libs/handlebars.min.js"></script>
     <script src="../src/facetly.js"></script>
     <script>
     Facetly.init({
         selector: '#facetly',
-        elasticsearch: 'http://localhost:9200',
-        index: 'teatrolibero',
-        type: 'user',
+        elasticsearch: 'http://localhost:9200/teatrolibero/user/_search',
         onSerialize: function(obj, str) {
             // console.debug(str);
         },

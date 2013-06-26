@@ -31,17 +31,11 @@
   ----------------------------------------- */
   @sidebarWidth: 400px;
   .sidebar {
-    float: left;
-    width: 40%;
-    max-width: @sidebarWidth;
-    height: 100%;
-    overflow: hidden;
-    margin-top: -1px;
-    margin-right: 5px;
     ul {
       .reset-spacing();
       li {
         .reset-spacing();
+        margin-bottom: 5px;
         .header {
           .border-radius(0);
         }
@@ -58,18 +52,17 @@
      Results
   ----------------------------------------- */
   .results {
-    overflow-x: auto;
-    overflow-y: auto; 
-    height: 100%;
-    table {
+    .box-scrollable {
       overflow-x: scroll;
-      width: 100%;
-      .border-radius(0);
-      border-collapse: collapse;
-      tr,
-      td,
-      th {
+      white-space: nowrap;
+      table {
         .border-radius(0);
+        border-collapse: collapse;
+        tr,
+        td,
+        th {
+          .border-radius(0);
+        }
       }
     }
   }

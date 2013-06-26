@@ -1,4 +1,4 @@
-/*! Facetly - v0.1.0 - 2013-06-25
+/*! Facetly - v0.1.0 - 2013-06-26
 * https://github.com/jiabin/facetly
 * Copyright (c) 2013 Eymen Gunay; Licensed MIT */
 
@@ -23,15 +23,6 @@
   ----------------------------------------- */
 
 }
-.facetly .sidebar {
-  float: left;
-  width: 40%;
-  max-width: 400px;
-  height: 100%;
-  overflow: hidden;
-  margin-top: -1px;
-  margin-right: 5px;
-}
 .facetly .sidebar ul {
   margin: 0;
   padding: 0;
@@ -39,6 +30,7 @@
 .facetly .sidebar ul li {
   margin: 0;
   padding: 0;
+  margin-bottom: 5px;
 }
 .facetly .sidebar ul li .header {
   border-radius: 0;
@@ -48,22 +40,19 @@
 .facetly .sidebar ul li .content .add-on {
   cursor: pointer;
 }
-.facetly .results {
-  overflow-x: auto;
-  overflow-y: auto;
-  height: 100%;
-}
-.facetly .results table {
+.facetly .results .box-scrollable {
   overflow-x: scroll;
-  width: 100%;
+  white-space: nowrap;
+}
+.facetly .results .box-scrollable table {
   border-radius: 0;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   border-collapse: collapse;
 }
-.facetly .results table tr,
-.facetly .results table td,
-.facetly .results table th {
+.facetly .results .box-scrollable table tr,
+.facetly .results .box-scrollable table td,
+.facetly .results .box-scrollable table th {
   border-radius: 0;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;

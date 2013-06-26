@@ -17,9 +17,12 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        banner: '<%= banner %>',
         stripBanners: true
       },
+      development: {
+        src: ['src/<%= pkg.name %>.js'],
+        dest: 'dist/<%= pkg.name %>.js'
+      }
     },
     uglify: {
       production: {

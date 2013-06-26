@@ -204,10 +204,11 @@ var Facetly = Facetly || (function($) {
 
                         if (Query.holder[name][operator] == undefined) Query.holder[name][operator] = [];
 
-                        var object = {};
-                        object['wildcard'] = {};
-                        object['wildcard'][name] = query[name][q].value;
-                        Query.holder[name][query[name][q].operator].push(object);
+                        var object = {
+                            match_phrase: {}
+                        };
+                        object.nested.query.match_phrase[name] = value;
+                        Query.holder[name][operator].push(object);
                         i++;
                     }
                 }
@@ -231,15 +232,16 @@ var Facetly = Facetly || (function($) {
                             Query.holder[name][query[name][q].operator] = [];
                         }
 
-                        var object = {};
-                        object['nested'] = {
-                            path: path,
-                            query: {
-                                wildcard: {}
+                        var object = {
+                            nested: {
+                                path: path,
+                                query: {
+                                    match_phrase: {}
+                                }
                             }
                         };
-                        object['nested']['query']['wildcard'][field] = query[name][q].value;
-                        Query.holder[name][query[name][q].operator].push(object);
+                        object.nested.query.match_phrase[field] = value;
+                        Query.holder[name][operator].push(object);
                         i++;
                     }
                 }
@@ -269,32 +271,6 @@ var Facetly = Facetly || (function($) {
                 // Rebind events
                 Events.bindEvents();
                 return; 
-
-                
-
-                var index = eval("(" + $(this).attr('data-index') + ")");
-                for (i in index) {
-                    var pattern = new RegExp(index[i].orig);
-                    var html = clone.html();
-                    html.replace(pattern, index[i].format.replace("{#}", inc));
-                    clone.html(html);
-                }
-
-                console.debug(clone.html());
-
-                // Change index number
-                var length = Utils.cache.window.tmp[name];
-
-                length === undefined ? Utils.cache.window.tmp[name] = $("ul#facet-"+name+" select").length : Utils.cache.window.tmp[name]++;
-
-                var inputName = clone.find('input').attr('name').replace(/[0-9]+/, Utils.cache.window.tmp[name]);
-                clone.find('input').attr('name', inputName);
-                var selectName = clone.find('select').attr('name').replace(/[0-9]+/, Utils.cache.window.tmp[name]);
-                clone.find('select').attr('name', selectName);
-                // Put clone after the current elem
-                $(li).after(clone);
-                // Rebind events
-                Events.bindEvents();
             },
             remove: function(e) {
                 var li = $(this).closest('li');

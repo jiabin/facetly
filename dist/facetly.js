@@ -210,7 +210,7 @@ var Facetly = Facetly || (function($) {
                         var object = {
                             match_phrase: {}
                         };
-                        object.nested.query.match_phrase[name] = value;
+                        object.match_phrase[name] = value;
                         Query.holder[name][operator].push(object);
                         i++;
                     }

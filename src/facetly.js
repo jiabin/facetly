@@ -412,7 +412,7 @@ var Facetly = Facetly || (function($) {
                         <div class="input-append"> \
                             <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeNested" data-method="keyup"> \
                             <a href="javascript:void()" class="add-on" data-event="clone"  data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
+                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-trash"></i></a> \
                         </div> \
                     </div> \
                 </li> \
@@ -443,7 +443,7 @@ var Facetly = Facetly || (function($) {
                         <div class="input-append"> \
                             <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeTerms" data-method="keyup"> \
                             <a href="javascript:void()" class="add-on" data-event="clone" data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
+                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-trash"></i></a> \
                         </div> \
                     </div> \
                 </li> \
@@ -477,7 +477,7 @@ var Facetly = Facetly || (function($) {
                         </div> \
                         <!-- <div class="btn-group"> \
                             <a href="javascript:void()" class="btn btn-mini" data-src="facetly-clonable-{{name}}" data-index="alert(\'TODO\')" data-event="clone" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                            <a href="javascript:void()" class="btn btn-mini" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-remove"></i></a> \
+                            <a href="javascript:void()" class="btn btn-mini" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-trash"></i></a> \
                         </div> --> \
                     </div> \
                     <script> \

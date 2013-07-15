@@ -34,7 +34,7 @@
     <script>
     Facetly.init({
         selector: '#facetly',
-        elasticsearch: 'http://localhost:9200/teatrolibero/user/_search',
+        elasticsearch: 'http://localhost:9200/twitter/tweets/_search',
         onSerialize: function(obj, str) {
             // console.debug(str);
         },
@@ -45,21 +45,10 @@
                     size: 10
                 }
             },
-            acceptsNewsletter: {
+            name: {
                 terms: {
-                    field: "acceptsNewsletter"
+                    field: "name"
                 }
-            },
-            providerName: {
-                terms: {
-                    field: "providerName"
-                }
-            },
-            sales: {
-                terms: {
-                    field: "orders.items.sellable.name",
-                },
-                nested: "orders.items.sellable"  
             },
             group: {
                 terms: {
@@ -78,11 +67,6 @@
                     field: "addresses.country"
                 },
                 nested: "addresses"
-            },
-            locale: {
-                terms: {
-                    field: "locale"
-                }
             },
             createdAt: {
                 date_histogram : {

@@ -1,4 +1,4 @@
-/*! Facetly - v0.1.0 - 2013-07-04
+/*! Facetly - v0.1.0 - 2013-07-15
 * https://github.com/jiabin/facetly
 * Copyright (c) 2013 Eymen Gunay; Licensed MIT */
 
@@ -42,9 +42,6 @@ var Facetly = Facetly || (function($) {
         },
         extend: function(obj1, obj2) {
             return $.extend(obj1, obj2);
-        },
-        deepExtend: function(obj1, obj2) {
-            return Object.deepExtend({}, obj1, obj2);
         },
         merge: function(arr1, arr2) {
             return $.merge(arr1, arr2);
@@ -656,7 +653,3 @@ RegExp.quote = function(str) {
 // Serialize Object
 // https://github.com/macek/jquery-serialize-object
 (function(e){e.fn.serializeObject=function(){var t=this,n={},r={},i={validate:/^[a-zA-Z][a-zA-Z0-9_]*(?:\[(?:\d*|[a-zA-Z0-9_]+)\])*$/,key:/[a-zA-Z0-9_]+|(?=\[\])/g,push:/^$/,fixed:/^\d+$/,named:/^[a-zA-Z0-9_]+$/};this.build=function(e,t,n){e[t]=n;return e};this.push_counter=function(e){if(r[e]===undefined){r[e]=0}return r[e]++};e.each(e(this).serializeArray(),function(){if(!i.validate.test(this.name)){return}var r,s=this.name.match(i.key),o=this.value,u=this.name;while((r=s.pop())!==undefined){u=u.replace(new RegExp("\\["+r+"\\]$"),"");if(r.match(i.push)){o=t.build([],t.push_counter(u),o)}else if(r.match(i.fixed)){o=t.build([],r,o)}else if(r.match(i.named)){o=t.build({},r,o)}}n=e.extend(true,n,o)});return n}})(jQuery)
-
-// Deep extend
-// http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
-Object.deepExtend=function(e,t){for(var n in t){if(t[n]&&t[n].constructor&&t[n].constructor===Object){e[n]=e[n]||{};arguments.callee(e[n],t[n])}else{e[n]=t[n]}}return e};

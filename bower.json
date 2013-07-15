@@ -1,0 +1,19 @@
+{
+  "name": "facetly",
+  "version": "0.1.0",
+  "main": [
+    "dist/facetly.min.css",
+    "dist/facetly.min.js"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": ">=1.7.1"
+  }
+}

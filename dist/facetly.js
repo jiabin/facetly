@@ -1,4 +1,4 @@
-/*! Facetly - v0.1.0 - 2013-07-15
+/*! Facetly - v0.1.0 - 2013-09-23
 * https://github.com/jiabin/facetly
 * Copyright (c) 2013 Eymen Gunay; Licensed MIT */
 
@@ -18,7 +18,7 @@ var Facetly = Facetly || (function($) {
     ----------------------------------------- */
     Utils = {
         settings: {
-            debug: false,
+            debug: true,
             selector: '#facetly',
             elasticsearch: 'http://localhost:9200',
             perPage: 25,
@@ -166,7 +166,7 @@ var Facetly = Facetly || (function($) {
                 } else {
                     values[1] = entries[values[1]].time;
                 }
-                
+
                 var query = $("#facetly-form ul#facet-"+name+" :input").serializeObject();
 
                 var i = 0;
@@ -270,7 +270,7 @@ var Facetly = Facetly || (function($) {
                 $(firstLi).after(firstLiHTML);
                 // Rebind events
                 Events.bindEvents();
-                return; 
+                return;
             },
             remove: function(e) {
                 var li = $(this).closest('li');
@@ -302,8 +302,8 @@ var Facetly = Facetly || (function($) {
                 }
             }
             var query = inc == 0 ? Query.matchAllQuery() : query;
-    
-            // Set current query            
+
+            // Set current query
             Query.currentQuery = query;
 
             var object = {query: query, size: Utils.settings.perPage};

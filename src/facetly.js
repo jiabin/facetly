@@ -21,6 +21,7 @@ var Facetly = Facetly || (function($) {
             perPage: 25,
             currentPage: 1,
             excludedFields: [],
+            facets: {},
             meta: {},
             onSerialize: function(str, obj) {},
             init: function(settings) {
@@ -141,6 +142,8 @@ var Facetly = Facetly || (function($) {
         endpoints: {
             serializeDateHistogram: function(e, arr) {
                 var name = $(this).attr('data-name');
+                var facet = Utils.settings.facets[name];
+                var field = facet.date_histogram.field;
                 Query.holder[name] = {};
 
                 var value = $(this).val();
@@ -175,11 +178,22 @@ var Facetly = Facetly || (function($) {
 
                         if (Query.holder[name][operator] == undefined) Query.holder[name][operator] = [];
 
-                        var object = {};
-                        object['range'] = {};
-                        object['range'][name] = {
+
+                        var query = {};
+                        query['range'] = {};
+                        query['range'][field] = {
                             from: parseInt(values[0]),
                             to: parseInt(values[1])
+                        };
+                        if (facet['nested']) {
+                            var object = {
+                                nested: {
+                                    path: facet['nested'],
+                                    query: query
+                                }
+                            };
+                        } else {
+                            var object = query;
                         }
                         Query.holder[name][operator].push(object);
                         i++;
@@ -190,6 +204,8 @@ var Facetly = Facetly || (function($) {
             serializeTerms: function(e) {
                 var name = $(this).attr('data-name');
                 var query = $("#facetly-form ul#facet-"+name+" :input").serializeObject();
+                var facet = Utils.settings.facets[name];
+                var field = facet.terms.field;
                 Query.holder[name] = {};
                 var i = 0;
                 for (q in query[name]) {
@@ -201,43 +217,22 @@ var Facetly = Facetly || (function($) {
 
                         if (Query.holder[name][operator] == undefined) Query.holder[name][operator] = [];
 
-                        var object = {
-                            match_phrase: {}
-                        };
-                        object.match_phrase[name] = value;
-                        Query.holder[name][operator].push(object);
-                        i++;
-                    }
-                }
-                App.loadResults();
-            },
-            serializeNested: function(e) {
-                var name = $(this).attr('data-name');
-                var query = $("#facetly-form ul#facet-"+name+" :input").serializeObject();
-                var path = Utils.settings.facets[name].nested;
-                var field = Utils.settings.facets[name].terms.field ? Utils.settings.facets[name].terms.field : Utils.settings.facets[name].terms.script_field;
-                Query.holder[name] = {};
-                var i = 0;
-                for (q in query[name]) {
-
-                    var operator = query[name][q].operator;
-                    var value = query[name][q].value;
-
-                    if (query[name][q].operator != '' && query[name][q].value != '') {
-
-                        if (Query.holder[name][query[name][q].operator] == undefined) {
-                            Query.holder[name][query[name][q].operator] = [];
-                        }
-
-                        var object = {
-                            nested: {
-                                path: path,
-                                query: {
-                                    match_phrase: {}
+                        if (facet['nested']) {
+                            var object = {
+                                nested: {
+                                    path: facet['nested'],
+                                    query: {
+                                        match_phrase: {}
+                                    }
                                 }
-                            }
-                        };
-                        object.nested.query.match_phrase[field] = value;
+                            };
+                            object.nested.query.match_phrase[field] = value;
+                        } else {
+                            var object = {
+                                match_phrase: {}
+                            };
+                            object.match_phrase[name] = value;
+                        }
                         Query.holder[name][operator].push(object);
                         i++;
                     }
@@ -346,7 +341,6 @@ var Facetly = Facetly || (function($) {
         init: function() {
             _log('Compiling templates');
             Templates.types.terms = Handlebars.compile(Templates.types.terms);
-            Templates.types.nested = Handlebars.compile(Templates.types.nested);
             Templates.types.date_histogram = Handlebars.compile(Templates.types.date_histogram);
             // Random helper
             Handlebars.registerHelper('random', function() {
@@ -365,7 +359,7 @@ var Facetly = Facetly || (function($) {
             // Type helper
             Handlebars.registerHelper('type', function(facet, name) {
                 var template = Templates.types[facet._type];
-                if (Utils.settings.facets[name].nested != undefined) template = Templates.types['nested'];
+                // if (Utils.settings.facets[name].nested != undefined) template = Templates.types['nested'];
                 return new Handlebars.SafeString(template({facet: facet, name: name}));
             });
             // Facets helper
@@ -377,7 +371,9 @@ var Facetly = Facetly || (function($) {
                 var html = '<tr>';
                 for (i in results.hits.hits) {
                     for (key in results.hits.hits[i]._source) {
-                        html += '<th>'+key+'</th>';
+                        if (jQuery.inArray(key, Utils.settings.excludedFields) === -1) {
+                            html += '<th>'+key+'</th>';
+                        }
                     }
                     break;
                 }
@@ -385,11 +381,14 @@ var Facetly = Facetly || (function($) {
                 return new Handlebars.SafeString(html);
             });
             // JSON helper
-            Handlebars.registerHelper('json', function(context) {
-                if (typeof context == 'object') {
-                    return JSON.stringify(context);
-                } else {
-                    return context;
+            Handlebars.registerHelper('json', function(key, context) {
+                if (jQuery.inArray(key, Utils.settings.excludedFields) === -1) {
+                    if (typeof key == 'object') {
+                        var html = JSON.stringify(key);
+                    } else {
+                        var html = key;
+                    }
+                    return new Handlebars.SafeString("<td>" + html + "</td>");
                 }
             });
             Templates.facets = Handlebars.compile(Templates.facets);
@@ -397,37 +396,6 @@ var Facetly = Facetly || (function($) {
             _log('Templates Compiled');
         },
         types: {
-            nested: '<ul id="facet-{{name}}"> \
-                <li class="custom" data-clonable="facetly-{{name}}"> \
-                    <div class="form-inline"> \
-                        <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeNested" data-method="change"> \
-                            <option value=""></option> \
-                            <option value="must">Must</option> \
-                            <option value="should">Should</option> \
-                            <option value="must_not">Must Not</option> \
-                        </select> \
-                        <div class="input-append"> \
-                            <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeNested" data-method="keyup"> \
-                            <a href="javascript:void()" class="add-on" data-event="clone"  data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-trash"></i></a> \
-                        </div> \
-                    </div> \
-                </li> \
-                {{#each facet.terms}} \
-                    <li data-clonable="facetly-{{../name}}"> \
-                        <div class="form-inline"> \
-                            <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeNested" data-method="change"> \
-                                <option value=""></option> \
-                                <option value="must">Must</option> \
-                                <option value="should">Should</option> \
-                                <option value="must_not">Must Not</option> \
-                            </select> \
-                            <input class="input-medium" type="text" value="{{this.term}}" name="{{../name}}[{{inc @index}}][value]" readonly="readonly" data-event="serializeNested" data-method="keyup"> \
-                            <small>({{this.count}})</small> \
-                        </div> \
-                    </li> \
-                {{/each}} \
-            </ul>',
             terms: '<ul id="facet-{{name}}"> \
                 <li class="custom" data-clonable="facetly-{{name}}"> \
                     <div class="form-inline"> \
@@ -501,7 +469,7 @@ var Facetly = Facetly || (function($) {
                     {{#each results.hits.hits}} \
                     <tr> \
                         {{#each this._source}} \
-                            <td>{{json this}}</td> \
+                            {{json this}} \
                         {{/each}} \
                     </tr> \
                     {{else}} \

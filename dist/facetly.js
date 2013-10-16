@@ -143,7 +143,7 @@ var Facetly = Facetly || (function($) {
     ----------------------------------------- */
     Events = {
         endpoints: {
-            serializeDateHistogram: function(e, arr) {
+            serializeHistogram: function(e, arr) {
                 var name = $(this).attr('data-name');
                 var facet = Utils.settings.facets[name];
                 var field = facet.date_histogram.field;
@@ -385,7 +385,7 @@ var Facetly = Facetly || (function($) {
             });
             // JSON helper
             Handlebars.registerHelper('json', function(key, context) {
-                if (jQuery.inArray(key, Utils.settings.excludedFields) === -1) {
+                if (jQuery.inArray(context.data.key, Utils.settings.excludedFields) === -1) {
                     if (typeof key == 'object') {
                         var html = JSON.stringify(key);
                     } else {
@@ -434,14 +434,14 @@ var Facetly = Facetly || (function($) {
                 <li class="custom" data-clonable="facetly-{{name}}"> \
                     <div id="facetly-slider-graph-{{name}}-0"></div> \
                     <div class="form-inline"> \
-                        <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeDateHistogram" data-method="change"> \
+                        <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeHistogram" data-method="change"> \
                             <option value=""></option> \
                             <option value="must">Must</option> \
                             <option value="should">Should</option> \
                             <option value="must_not">Must Not</option> \
                         </select> \
                         <div class="slide-wrapper"> \
-                            <input type="text" class="input-medium" name="{{name}}[0][value]" data-name="{{name}}" id="facetly-slider-{{name}}-0" value="" data-slider-min="0" data-slider-max="{{facet.entries.length}}" data-slider-step="1" data-slider-value="[0, {{facet.entries.length}}]" data-slider-selection="after" data-slider-tooltip="hide" data-event="serializeDateHistogram" method="change"> \
+                            <input type="text" class="input-medium" name="{{name}}[0][value]" data-name="{{name}}" id="facetly-slider-{{name}}-0" value="" data-slider-min="0" data-slider-max="{{facet.entries.length}}" data-slider-step="1" data-slider-value="[0, {{facet.entries.length}}]" data-slider-selection="after" data-slider-tooltip="hide" data-event="serializeHistogram" method="change"> \
                         </div> \
                         <!-- <div class="btn-group"> \
                             <a href="javascript:void()" class="btn btn-mini" data-src="facetly-clonable-{{name}}" data-index="alert(\'TODO\')" data-event="clone" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \

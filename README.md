@@ -13,14 +13,15 @@ In your web page:
 ```html
 <!-- Stylesheets -->
 <link rel="stylesheet" type="text/css" href="../css/facetly.css" />
-<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css" />
 <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 
 <!-- Container -->
 <div id="facetly"></div>
 
 <!-- Javascripts -->
-<script src="libs/jquery-loader.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
 <script src="libs/handlebars.min.js"></script>
 <script src="dist/facetly.min.js"></script>
 <script>

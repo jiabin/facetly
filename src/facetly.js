@@ -1,4 +1,3 @@
-/* Facetly v0.1.0  */
 var Facetly = Facetly || (function($) {
 
     var Utils     = {}, // Toolbox
@@ -6,6 +5,7 @@ var Facetly = Facetly || (function($) {
         Events    = {}, // Event-based Actions
         Templates = {}, // Handlebar Templates
         UI        = {}, // App Interface
+        Lang      = {}, // i18n Support
         Query     = {}, // Elasticsearch Query Helper
         App       = {}, // Global Logic and Initializer
         Public    = {}; // Public Functions
@@ -217,21 +217,24 @@ var Facetly = Facetly || (function($) {
 
                         if (Query.holder[name][operator] == undefined) Query.holder[name][operator] = [];
 
+                        // Check if nested
                         if (facet['nested']) {
                             var object = {
                                 nested: {
                                     path: facet['nested'],
                                     query: {
-                                        match_phrase: {}
+                                        query_string: {}
                                     }
                                 }
                             };
-                            object.nested.query.match_phrase[field] = value;
+                            object.nested.query.query_string['default_field'] = field;
+                            object.nested.query.query_string['query'] = value;
                         } else {
                             var object = {
-                                match_phrase: {}
+                                query_string: {}
                             };
-                            object.match_phrase[name] = value;
+                            object.query_string['default_field'] = field;
+                            object.query_string['query'] = value;
                         }
                         Query.holder[name][operator].push(object);
                         i++;
@@ -305,13 +308,14 @@ var Facetly = Facetly || (function($) {
         },
         bindEvents: function(){
             _log('Binding Events');
-            $('[data-event]').each(function(){
+
+            $('[data-event]').each(function() {
                 var _this = this,
                     method = _this.dataset.method || 'click',
                     name = _this.dataset.event,
                     bound = _this.dataset.bound;
 
-                if(!bound){
+                if (!bound) {
                     Utils.parseRoute({
                         path: name,
                         target: Events.endpoints,
@@ -347,6 +351,10 @@ var Facetly = Facetly || (function($) {
                 var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
                 var uniqid = randLetter + Date.now();
                 return uniqid;
+            });
+            // Lang helper
+            Handlebars.registerHelper('trans', function(key, vars) {
+                return Lang.get(key, vars);
             });
             // Increment helper
             Handlebars.registerHelper('unique_inc', function(bool) {
@@ -391,6 +399,7 @@ var Facetly = Facetly || (function($) {
                     return new Handlebars.SafeString("<td>" + html + "</td>");
                 }
             });
+            Templates.search = Handlebars.compile(Templates.search);
             Templates.facets = Handlebars.compile(Templates.facets);
             Templates.results = Handlebars.compile(Templates.results);
             _log('Templates Compiled');
@@ -401,9 +410,9 @@ var Facetly = Facetly || (function($) {
                     <div class="form-inline"> \
                         <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeTerms" data-method="change"> \
                             <option value=""></option> \
-                            <option value="must">Must</option> \
-                            <option value="should">Should</option> \
-                            <option value="must_not">Must Not</option> \
+                            <option value="must">{{trans "must"}}</option> \
+                            <option value="should">{{trans "should"}}</option> \
+                            <option value="must_not">{{trans "must_not"}}</option> \
                         </select> \
                         <div class="input-append"> \
                             <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeTerms" data-method="keyup"> \
@@ -417,9 +426,9 @@ var Facetly = Facetly || (function($) {
                         <div class="form-inline"> \
                             <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeTerms" data-method="change"> \
                                 <option value=""></option> \
-                                <option value="must">Must</option> \
-                                <option value="should">Should</option> \
-                                <option value="must_not">Must Not</option> \
+                                <option value="must">{{trans "must"}}</option> \
+                                <option value="should">{{trans "should"}}</option> \
+                                <option value="must_not">{{trans "must_not"}}</option> \
                             </select> \
                             <input class="input-medium" type="text" value="{{this.term}}" name="{{../name}}[{{inc @index}}][value]" readonly="readonly" data-event="serializeTerms" data-method="keyup"> \
                             <small>({{this.count}})</small> \
@@ -433,9 +442,9 @@ var Facetly = Facetly || (function($) {
                     <div class="form-inline"> \
                         <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeHistogram" data-method="change"> \
                             <option value=""></option> \
-                            <option value="must">Must</option> \
-                            <option value="should">Should</option> \
-                            <option value="must_not">Must Not</option> \
+                            <option value="must">{{trans "must"}}</option> \
+                            <option value="should">{{trans "should"}}</option> \
+                            <option value="must_not">{{trans "must_not"}}</option> \
                         </select> \
                         <div class="slide-wrapper"> \
                             <input type="text" class="input-medium" name="{{name}}[0][value]" data-name="{{name}}" id="facetly-slider-{{name}}-0" value="" data-slider-min="0" data-slider-max="{{facet.entries.length}}" data-slider-step="1" data-slider-value="[0, {{facet.entries.length}}]" data-slider-selection="after" data-slider-tooltip="hide" data-event="serializeHistogram" method="change"> \
@@ -460,6 +469,31 @@ var Facetly = Facetly || (function($) {
                 </li> \
             </ul>',
         },
+        search: '<div class="well"> \
+            <form class="form-horizontal"> \
+                <fieldset> \
+                    <legend>{{trans "search"}} <small>(<span class="nbresults">0</span> {{trans "results"}})</small></legend> \
+                    <div class="control-group"> \
+                        <label class="control-label" for="must">{{trans "must"}}</label> \
+                        <div class="controls"> \
+                            <div id="search_must" class="search"></div> \
+                        </div> \
+                    </div> \
+                    <div class="control-group"> \
+                        <label class="control-label" for="should">{{trans "should"}}</label> \
+                        <div class="controls"> \
+                            <div id="search_should" class="search"></div> \
+                        </div> \
+                    </div> \
+                    <div class="control-group"> \
+                        <label class="control-label" for="must_not">{{trans "must_not"}}</label> \
+                        <div class="controls"> \
+                            <div id="search_must_not" class="search"></div> \
+                        </div> \
+                    </div> \
+                </fieldset> \
+            </form> \
+        </div>',
         results: '<div class="box-scrollable"> \
             <table class="table table-striped table-bordered"> \
                 <thead> \
@@ -474,13 +508,13 @@ var Facetly = Facetly || (function($) {
                     </tr> \
                     {{else}} \
                     <tr> \
-                        <td>No results found</td> \
+                        <td>{{trans "no_results"}}</td> \
                     </tr> \
                     {{/each}} \
                 </tbody> \
             </table> \
         </div> \
-        <p>{{results.hits.total}} results found</p>',
+        <p>{{results.hits.total}} {{trans "results"}}</p>',
         facets: '<form id="facetly-form"> \
             <ul> \
                 {{#each facets}} \
@@ -488,13 +522,13 @@ var Facetly = Facetly || (function($) {
                         <div class="header"> \
                             {{@key}} \
                             {{#if this.total}} \
-                            <small>Total: {{this.total}}</small> \
+                            <small>{{trans "total"}}: {{this.total}}</small> \
                             {{/if}} \
                             {{#if this.entries}} \
-                            <small>Total: {{this.entries.length}}</small> \
+                            <small>{{trans "total"}}: {{this.entries.length}}</small> \
                             {{/if}} \
                             {{#if this.other}} \
-                            <small>Other: {{this.other}}</small> \
+                            <small>{{trans "other"}}: {{this.other}}</small> \
                             {{/if}} \
                         </div> \
                         <div class="content"> \
@@ -517,8 +551,17 @@ var Facetly = Facetly || (function($) {
     ----------------------------------------- */
     UI = {
         init: function() {
-            UI.container = Handlebars.compile(UI.container);
-            UI.container = $(UI.container());
+            UI.row1 = Handlebars.compile(UI.row1);
+            UI.row1 = $(UI.row1());
+
+            UI.search   = Handlebars.compile(UI.search);
+            UI.search   = $(UI.search());
+
+            element.append(UI.row1);
+            UI.row1.append(UI.search);
+
+            UI.row2 = Handlebars.compile(UI.row2);
+            UI.row2 = $(UI.row2());
 
             UI.sidebar   = Handlebars.compile(UI.sidebar);
             UI.sidebar   = $(UI.sidebar());
@@ -526,13 +569,47 @@ var Facetly = Facetly || (function($) {
             UI.results   = Handlebars.compile(UI.results);
             UI.results   = $(UI.results());
 
-            element.append(UI.container);
-            UI.container.append(UI.sidebar);
-            UI.container.append(UI.results);
+            element.append(UI.row2);
+            UI.row2.append(UI.sidebar);
+            UI.row2.append(UI.results);
         },
-        container: '<div class="row-fluid"></div>',
+        row1: '<div class="row-fluid" style="display: none;"></div>',
+        row2: '<div class="row-fluid"></div>',
+        search: '<div class="span12"></div>',
         sidebar: '<div class="sidebar span4"></div>',
         results: '<div class="results span8"></div>'
+    };
+
+    /* -----------------------------------------
+       LANGUAGE
+    ----------------------------------------- */
+    Lang = {
+        locale: 'it',
+        get: function(key, vars) {
+            return Lang.translations[Lang.locale][key];
+        },
+        translations: {
+            en: {
+                must: 'Must',
+                should: 'Should',
+                must_not: 'Must Not',
+                total: 'Total',
+                other: 'Others',
+                search: 'Search',
+                results: 'results',
+                no_results: 'No results found',
+            },
+            it: {
+                must: 'Deve',
+                should: 'Può',
+                must_not: 'Non Deve',
+                total: 'Totale',
+                other: 'Altri',
+                search: 'Ricerca',
+                results: 'risultati',
+                no_results: 'Nessun risultato',
+            }
+        }
     };
 
     /* -----------------------------------------
@@ -569,9 +646,12 @@ var Facetly = Facetly || (function($) {
             // Get facets
             App.loadFacets(function() {
                 Events.init();
-            });
-            App.loadResults(function() {
-                Events.init();
+
+                // Get results
+                App.loadResults(function(data) {
+                    Events.init();
+                    $(Utils.settings.selector + ' .nbresults').html(data.hits.total || 0);
+                });
             });
         },
         loadFacets: function(callback) {
@@ -579,6 +659,73 @@ var Facetly = Facetly || (function($) {
             Ajax.call(Utils.elastic_search_url(), Query.create({facets: Utils.settings.facets, query: Query.matchAllQuery}), function(data) {
                 UI.sidebar.html(Templates.facets({facets: data.facets }));
                 Ajax.facets = data.facets;
+
+                // Get search
+                UI.search.html(Templates.search());
+
+                var facets = {};
+                var values = {};
+                for (name in data.facets) {
+                    // Facets
+                    var facet = data.facets[name];
+                    // Only term facets are allowed
+                    // as visualsearch plugin can handle
+                    // only key value searches
+                    if (!facet.terms) {
+                        continue;
+                    }
+                    facets[name] = facet;
+                    // Values
+                    if (values[name] == undefined) {
+                        values[name] = [];
+                    }
+                    for (i in facet.terms) {
+                        var term = facet.terms[i].term;
+                        values[name].push(term);   
+                    }
+                }
+
+                var facetMatches = function(callback) {
+                    callback(Object.keys(facets));
+                };
+
+                var valueMatches = function(facet, searchTerm, callback) {
+                    callback(values[facet]);
+                };
+
+                // Search Must
+                var visualSearch = VS.init({
+                  container : $(Utils.settings.selector + ' #search_must'),
+                  query     : '',
+                  callbacks : {
+                    search       : function(query, searchCollection) {},
+                    facetMatches : facetMatches,
+                    valueMatches : valueMatches,
+                  }
+                });
+
+                // Search Should
+                var visualSearch = VS.init({
+                  container : $(Utils.settings.selector + ' #search_should'),
+                  query     : '',
+                  callbacks : {
+                    search       : function(query, searchCollection) {},
+                    facetMatches : facetMatches,
+                    valueMatches : valueMatches,
+                  }
+                });
+
+                // Search Must Not
+                var visualSearch = VS.init({
+                  container : $(Utils.settings.selector + ' #search_must_not'),
+                  query     : '',
+                  callbacks : {
+                    search       : function(query, searchCollection) {},
+                    facetMatches : facetMatches,
+                    valueMatches : valueMatches,
+                  }
+                });
+
                 _log('Facets Loaded');
                 if (callback) callback();
             });
@@ -587,8 +734,9 @@ var Facetly = Facetly || (function($) {
             _log('Loading Results');
             Ajax.call(Utils.elastic_search_url(), Query.create(Events.serialize()), function(data) {
                 UI.results.html(Templates.results({results: data}));
+                $(Utils.settings.selector + ' .nbresults').html(data.hits.total || 0);
                 _log('Results Loaded');
-                if (callback) callback();
+                if (callback) callback(data);
             });
         }
     };
